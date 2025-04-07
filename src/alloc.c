@@ -135,9 +135,13 @@ void *coalesce(free_block *block) {
  *
  * @param size The amount of memory to allocate
  * @return A pointer to the allocated memory
+ * increments and returns a pointer to the top of the heap - memory from the OS
+ * TO-Do: STEP 1!!!
  */
 void *do_alloc(size_t size) {
+  
     return NULL;
+
 }
 
 /**
@@ -146,9 +150,41 @@ void *do_alloc(size_t size) {
  * @param size The amount of memory to allocate
  * @return A pointer to the requested block of memory
  */
+
+ typedef struct header {
+    size_t size; /**< Size of the block */
+    int magic; /**< Magic number for error checking */
+} header;
+
 void *tumalloc(size_t size) {
-    return NULL;
-}
+    free_block *curr = HEAD;
+    void *ptr = NULL;
+    free_block *prev = NULL;
+
+    if (HEAD == NULL) {
+        ptr = do_alloc(size);
+        return ptr; 
+    }
+    else {
+        for (block in free_list){
+            if (size <= block.size){
+                ptr = split(block.size | sizeof(header));
+                remove_free_block(header);
+                header(size) = size;
+                void header_magic = 0x01234567;
+                return ptr;
+            }
+        else {
+            ptr = do_alloc(size); 
+            return ptr; 
+        }
+    }
+        }
+    }
+    
+    
+    //return NULL;
+
 
 /**
  * Allocates and initializes a list of elements for the end user
@@ -157,8 +193,14 @@ void *tumalloc(size_t size) {
  * @param size The size of each element
  * @return A pointer to the requested block of initialized memory
  */
+
+//looking at implimenting "memset"? Sets nonheaders to 0
+//used https://stackoverflow.com/questions/57130051/how-to-use-malloc-and-memset for ideas
 void *tucalloc(size_t num, size_t size) {
-    return NULL;
+    for (block in free_list){
+        block *new_block = (block *)tumalloc(sizeof(block));
+        memset(new_block, 0, sizeof(block));
+    }
 }
 
 /**
@@ -168,9 +210,19 @@ void *tucalloc(size_t num, size_t size) {
  * @param new_size The new requested size to allocate
  * @return A new pointer containing the contents of ptr, but with the new_size
  */
+
+ //researched and found that memcpy could be used to copy data over 
+ // Disclaimer: Asked ChatGPT How memcpy is used in c for syntax
 void *turealloc(void *ptr, size_t new_size) {
-    return NULL;
-}
+    void old_size = curr *;
+    if (new_size == 0){
+        free(ptr);
+        return NULL;
+    }
+    void *memcpy(void *ptr, const void *src, size_t new_size)
+    tufree(ptr *);
+    return ptr;
+    }
 
 /**
  * Removes used chunk of memory and returns it to the free list
@@ -178,5 +230,21 @@ void *turealloc(void *ptr, size_t new_size) {
  * @param ptr Pointer to the allocated piece of memory
  */
 void tufree(void *ptr) {
-
+    free_block *curr = HEAD;
+    //header_magic = NULL:
+    header *hdr = (header *)((char *)ptr - sizeof(header));
+    if (header -> magic == 0x01234567){
+        free_block *free_block = (free_block *)hdr;
+        free_block -> size = hdr ->size;
+        free_block -> next = HEAD;
+        HEAD = free_block;
+        // code vocab: (coalesce) This is a placeholder for the logic that would attempt to 
+        // merge adjacent free blocks into one larger block.
+        coalesce(free_block);
+    }
+    else {
+        print("Memory corruption detected");
+        abort();
+    }
+    
 }
